@@ -1,0 +1,192 @@
+---
+openapi: 3.1.3
+info:
+  title: AppName - OpenAPI 3.0
+  description: |-
+    Copyright TegangLabs
+  contact:
+    email: apiteam@swagger.io
+  version: 1.0.0
+servers:
+  - url: https://hackjakarta.flippinbits.id/api/
+paths:
+  /volunteer/register:
+    post:
+      summary: Register new volunteer
+      requestBody:
+        required: true
+        description: Volunteer registration payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VolunteerRegister'
+      responses:
+        '200':
+          description: Register success
+        '400':
+          description: Request validation failure
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Unexpected server error
+  /volunteer/login:
+    post:
+      summary: Login endpoint for Volunteers
+      requestBody:
+        required: true
+        description: Login to Volunteer page
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '400':
+          description: Wrong credentials / volunteer not found
+        '405':
+          description: Wrong method
+        '500':
+          description: Unexpected server error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+    VolunteerRegister:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+    Volunteer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    Waste:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        label:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      Location:
+        type: object
+        properties:
+          latitude:
+            type: number
+            format: float
+          longitude:
+            type: number
+            format: float
+      Address:
+        type: object
+        properties:
+          street:
+            type: string
+          city:
+            type: string
+          province:
+            type: string
+          postal_code:
+            type: integer
+      AreaMetrics:
+        type: object
+      SubmitData:
+        type: object
+        properties:
+          submitted_by:
+            type: string
+            format: email
+          image_url:
+            type: string
+            format: url
+          address:
+            $ref: '#/components/schemas/Address'
+          location:
+            $ref: '#/components/schemas/Location'
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    WasteArray:
+      description: List of waste object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Waste'
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
